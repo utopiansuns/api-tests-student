@@ -40,6 +40,34 @@ TEST_PASSWORD=your_password
   go test -v ./tests/scenarios/myAdvertisement/
 ```
 
+10. Тесты лабораторной работы:
+
+```bash
+  go test -v -count=1 ./tests/scenarios/createAdvertisement/   # Часть 1: добавление объявления
+  go test -v -count=1 ./tests/scenarios/favorites/             # Часть 2: работа с избранным
+```
+
+Флаг `-count=1` отключает кэш результатов `go test`, чтобы тесты каждый раз реально ходили в API.
+
+### Что важно знать про тесты
+
+- Пользователь из `TEST_LOGIN`/`TEST_PASSWORD` создаёт объявления. Каждый тест создаёт свои объявления
+  с уникальным названием и удаляет их после себя, поэтому тесты можно запускать сколько угодно раз подряд.
+- Для тестов избранного нужен второй пользователь (своё объявление в избранное добавить нельзя — 403),
+  поэтому в `SetupSuite` пакета `favorites` автоматически регистрируется новый пользователь через `POST /auth/register`.
+  Дополнительно ничего настраивать не нужно.
+- Тестовая фотография для загрузки лежит в `testdata/photo.png`.
+
+### Структура
+
+- `internal/client/http/...` — Client Layer: HTTP-запросы к ручкам API
+- `internal/managers/...` — Manager Layer: проверка статус-кода, парсинг ответа в модели
+- `internal/assertions/...` — переиспользуемые проверки
+- `internal/constants/...` — пути ручек, тестовые данные, тексты ошибок API
+- `internal/helpers/fixtures` — генерация тестовых данных
+- `tests/scenarios/...` — Scenario Layer: тест-кейсы
+
+
 ## Логирование
 
 Для включения логирования request/response в консоль: выставьте переменную окружения `DEBUG=true` в
